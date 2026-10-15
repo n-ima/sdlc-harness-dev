@@ -1,0 +1,51 @@
+{
+  "permissions": {
+    "additionalDirectories": [
+      "D:/vscode-worspace/CreateAppl"
+    ],
+    "allow": [
+      "Bash(python:*)",
+      "Bash(.venv/Scripts/python.exe:*)",
+      "Bash(bash .github/hooks/scripts/selftest.sh)",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git switch:*)",
+      "Bash(git checkout -b:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git stash:*)",
+      "Bash(uv:*)",
+      "PowerShell(python:*)",
+      "PowerShell(.venv\\Scripts\\python.exe:*)",
+      "PowerShell(git status:*)",
+      "PowerShell(git diff:*)",
+      "PowerShell(git log:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(git tag:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git checkout -- :*)",
+      "Bash(git restore:*)",
+      "Bash(git clean:*)",
+      "Bash(gh release create:*)",
+      "Bash(gh pr merge:*)",
+      "PowerShell(git push:*)",
+      "PowerShell(git tag:*)",
+      "PowerShell(git reset --hard:*)",
+      "PowerShell(gh release create:*)",
+      "Bash(ln -s:*)",
+      "Bash(mklink:*)",
+      "PowerShell(New-Item -ItemType SymbolicLink:*)",
+      "PowerShell(New-Item -ItemType Junction:*)"
+    ],
+    "deny": [
+      "Agent(model:haiku)",
+      "Agent(model:claude-haiku-4-5)"
+    ]
+  }
+}

@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SDLC ハーネス所感回答</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Kaku+Gothic+New:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* layout: left sticky index on desktop, single column on phones; report pages with inset figures */
+:root{
+  --bg:#f6f7f5; --surface:#ffffff; --fg:#1d2420; --muted:#5b655f; --line:#d9ddd9;
+  --accent:#0f6e63; --accent-soft:#dcefeb; --warn:#9a5b00; --warn-soft:#fbefd9; --bad:#a3302c; --bad-soft:#f8e3e1; --good:#2d6a2f; --good-soft:#e2f0e1;
+  --code-bg:#eef1ef; --mark:#fff2b3;
+  --display:"Zen Kaku Gothic New","BIZ UDPGothic","Hiragino Sans","Yu Gothic UI",sans-serif;
+  --body:"BIZ UDPGothic","Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;
+  --mono:"IBM Plex Mono","Consolas","Menlo",monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#141917; --surface:#1c2320; --fg:#e7ebe8; --muted:#a5b0aa; --line:#33403a;
+  --accent:#5fc3b3; --accent-soft:#1f3b36; --warn:#e3a94a; --warn-soft:#3b2d12; --bad:#ef8a84; --bad-soft:#3d1f1d; --good:#8ccb8a; --good-soft:#1f3520;
+  --code-bg:#232c28; --mark:#5a4b12; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#141917; --surface:#1c2320; --fg:#e7ebe8; --muted:#a5b0aa; --line:#33403a;
+  --accent:#5fc3b3; --accent-soft:#1f3b36; --warn:#e3a94a; --warn-soft:#3b2d12; --bad:#ef8a84; --bad-soft:#3d1f1d; --good:#8ccb8a; --good-soft:#1f3520;
+  --code-bg:#232c28; --mark:#5a4b12; color-scheme:dark }
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.75;padding-block:0;padding-inline:16px}
+a{color:var(--accent)}
+h1,h2,h3,h4{font-family:var(--display);line-height:1.3;text-wrap:balance;margin:0}
+h1{font-size:clamp(26px,4vw,38px);font-weight:900}
+h2{font-size:clamp(21px,2.6vw,27px);font-weight:700;padding-top:12px;border-top:3px solid var(--accent);margin-top:56px}
+h3{font-size:18px;font-weight:700;margin-top:34px}
+h4{font-size:15px;font-weight:700;margin-top:20px;color:var(--muted);letter-spacing:.04em}
+p{margin:10px 0;max-width:72ch}
+ul,ol{max-width:72ch;padding-left:1.4em}
+li{margin:4px 0}
+.wrap{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:230px minmax(0,1fr);gap:40px;padding-block:28px}
+@media (max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)}}
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;font-size:13px;max-height:100vh;overflow:auto;padding-right:6px}
+@media (max-width:860px){nav.toc{position:static;max-height:none;border:1px solid var(--line);border-radius:6px;padding:12px}}
+nav.toc .eyebrow{font-family:var(--display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+nav.toc a{display:block;color:var(--fg);text-decoration:none;padding:3px 0 3px 10px;border-left:2px solid var(--line)}
+nav.toc a.sub{padding-left:22px;color:var(--muted)}
+nav.toc a:hover{border-left-color:var(--accent);color:var(--accent)}
+main{min-width:0}
+header.hero{border-bottom:1px solid var(--line);padding-bottom:22px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:13px;margin-top:10px}
+.lead{font-size:16.5px;max-width:70ch}
+.kicker{font-family:var(--display);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700}
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin:12px 0}
+th,td{border:1px solid var(--line);padding:7px 9px;vertical-align:top;text-align:left}
+th{background:var(--accent-soft);font-weight:700}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tbl{overflow-x:auto}
+pre{background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.55;margin:10px 0}
+code{font-family:var(--mono);font-size:.92em;background:var(--code-bg);padding:1px 5px;border-radius:4px}
+pre code{background:none;padding:0}
+.src{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin:10px 0 -6px}
+.del{color:var(--bad)}
+.add{color:var(--good)}
+.hl{background:var(--mark)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin:14px 0;min-width:0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.tag{display:inline-block;font-family:var(--display);font-size:11.5px;font-weight:700;letter-spacing:.06em;padding:2px 9px;border-radius:999px;border:1px solid currentColor;margin-right:6px}
+.t-now{color:var(--accent)} .t-gap{color:var(--bad)} .t-fix{color:var(--good)} .t-verify{color:var(--warn)}
+.item{border-left:3px solid var(--line);padding-left:16px;margin:26px 0}
+.item > h3{margin-top:0}
+.quote{border-left:3px solid var(--accent);padding:6px 14px;background:var(--accent-soft);border-radius:0 6px 6px 0;margin:10px 0;max-width:72ch}
+.fix{border:1px solid var(--good);background:var(--good-soft);border-radius:6px;padding:10px 14px;margin:10px 0}
+.fix b{color:var(--good)}
+.fig{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;margin:14px 0;overflow-x:auto}
+.fig svg{display:block;max-width:100%;height:auto}
+.fig figcaption{font-size:12.5px;color:var(--muted);margin-top:6px}
+details{border:1px solid var(--line);border-radius:6px;padding:8px 14px;margin:8px 0;background:var(--surface)}
+summary{cursor:pointer;font-weight:700;font-family:var(--display)}
+details p{margin:8px 0}
+.note{font-size:13px;color:var(--muted)}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:700}
+.p-good{background:var(--good-soft);color:var(--good)} .p-warn{background:var(--warn-soft);color:var(--warn)} .p-bad{background:var(--bad-soft);color:var(--bad)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}}
+html{scroll-behavior:smooth}
+.sources li{font-size:13px;word-break:break-all}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="目次">
+  <div class="eyebrow">目次</div>
+  <a href="#s0">0. 結論</a>
+  <a href="#s1">1. 検証の方法と結果</a>
+  <a href="#s2">2. 所感への回答</a>
+  <a class="sub" href="#q1">質問が終わらない</a>
+  <a class="sub" href="#q2">回答候補と推奨</a>
+  <a class="sub" href="#q3">質問が長い</a>
+  <a class="sub" href="#q4">機能・画面別の分類</a>
+  <a class="sub" href="#q5">保留の吸収</a>
+  <a class="sub" href="#q6">矛盾と遡及</a>
+  <a class="sub" href="#q7">課題一覧</a>
+  <a class="sub" href="#q8">モックの時期</a>
+  <a class="sub" href="#q9">テスト設計</a>
+  <a class="sub" href="#q10">リプレース案件</a>
+  <a class="sub" href="#q11">保守の分担</a>
+  <a class="sub" href="#q12">人が見る観点</a>
+  <a href="#s3">3. HTML での人間確認</a>
+  <a href="#s4">4. 最新動向との対応</a>
+  <a href="#s5">5. 複数人で並行する方法</a>
+  <a href="#s6">6. Figma との連携</a>
+  <a href="#s7">7. 対策の全体像</a>
+  <a href="#s8">8. 想定 Q&amp;A</a>
+  <a href="#s9">9. 出典</a>
+</nav>
+<main>
+
+<header class="hero">
+  <div class="kicker">利用所感への回答レポート</div>
+  <h1>SDLC ハーネス 所感への回答と対策</h1>
+  <p class="lead">要件定義フェーズを中心に寄せられた所感 12 項目について、ハーネス本体（copilot-sdlc-harness v1.2.0、main 726ec98）の実装を読み、評価用題材で実走して確認した結果をまとめた。各項目は「現状」「実走で確認」「ギャップ」「直す場所」の順に書き、関係する定義ファイルの抜粋を添える。後半では HTML での確認、2026 年の設計潮流（ハーネス／ループ／グラフ）、複数人並行、Figma 連携を扱う。</p>
+  <div class="meta">
+    <span>作成 2026-10-15</span>
+    <span>対象: D:\vscode-worspace\CreateAppl（本体）</span>
+    <span>実走: /00 → /01 → /02 → 承認 → /03（$12.36・45 分）</span>
+    <span>版: 動作検証版</span>
+  </div>
+</header>
+
+<!-- ===================================================== 0 -->
+<h2 id="s0">0. 結論</h2>
+<div class="quote"><b>評価の前提</b>: このハーネスの目的は、会社で継続的に保守していくシステムの開発と運用に適用すること。評価はこの目的のもとで、構築 1 回ではなく構築・変更・引き継ぎ・監査・運用のライフサイクル全体で行う。小規模の単発や PoC は目的の外。すべてが実測できるわけではないので、方針として置く設計判断と実測で裏づける項目を分けて記す。</div>
+<p>所感の「質問が終わらない」「量が多い」「成果物が膨大」はすべて実機で再現した。いずれも個別の不具合ではなく、設計思想（要件定義で厚く聞く、独立レビューの指摘から追加質問を派生させる、回数と分量に上限を置かない）から構造的に生じる。一方、回答候補・保留の吸収・矛盾の検出・差分駆動の遡及・既存コードの取り込み・保守の役割分担は実装済みで、所感との差は「推奨の明示」「機能別の分類」「課題一覧の見せ方」「リプレース型の手順」「人が見る観点」に絞られる。</p>
+<div class="tbl"><table>
+<tr><th>所感</th><th>実装の現状</th><th>実走の結果</th><th>判定</th></tr>
+<tr><td>質問が終わらない・見通しが立たない</td><td>厚く聞く思想。終了条件は spec-critic の指摘ゼロと人の承認</td><td>85 → 3 → 5 → 2 問の 4 回</td><td><span class="pill p-bad">構造的。直す</span></td></tr>
+<tr><td>回答候補と推奨</td><td>仮回答・選択肢あり。推奨の表示なし。高影響は候補なし</td><td>選択肢 51 問、高影響 40 問中 36 問に選択肢</td><td><span class="pill p-warn">一部実装済み</span></td></tr>
+<tr><td>質問が長い</td><td>1 問 6 行の構造</td><td>平均 7.2 行、質問文は 25 文字</td><td><span class="pill p-warn">構造を直す</span></td></tr>
+<tr><td>機能・画面別に分類</td><td>11 分類。機能要件が一塊</td><td>機能要件 35 問が 1 節</td><td><span class="pill p-bad">未実装。採用</span></td></tr>
+<tr><td>保留の吸収</td><td>「後で」は予約語、台帳 A-nnn へ</td><td>未回答のまま承認でも「後で」で追跡</td><td><span class="pill p-good">実装済み</span></td></tr>
+<tr><td>矛盾チェック・遡及</td><td>回答読込時と spec-critic の 2 段。遡及は差分駆動</td><td>仕込んだ 2 件＋意図しない 1 件を検出</td><td><span class="pill p-good">機能する（明文化が弱い）</span></td></tr>
+<tr><td>課題一覧</td><td>台帳 §7 と progress.md の申し送り</td><td>52 行中 38 行が確認済みで未決が埋もれる</td><td><span class="pill p-warn">見せ方を直す</span></td></tr>
+<tr><td>モックの時期</td><td>/04 の詳細設計後に HTML モック</td><td>（/04 未実走）</td><td><span class="pill p-warn">前倒し案</span></td></tr>
+<tr><td>テスト設計</td><td>要件・設計から導出。決定表・遷移表・人の確認なし</td><td>（/07 未実走）</td><td><span class="pill p-bad">提案を採用</span></td></tr>
+<tr><td>リプレース案件</td><td>/11 で既存コードの逆起こし。既存設計書の比較なし</td><td>（未実走）</td><td><span class="pill p-bad">入口を新設</span></td></tr>
+<tr><td>保守の分担</td><td>本体は提供側、利用側は記録と提案</td><td>—</td><td><span class="pill p-good">認識どおり</span></td></tr>
+<tr><td>人が見る観点</td><td>AI レビュアー向けの観点のみ</td><td>architecture.md 308 行＋ADR 5 件</td><td><span class="pill p-warn">観点と様式を追加</span></td></tr>
+</table></div>
+
+<!-- ===================================================== 1 -->
+<h2 id="s1">1. 検証の方法と結果</h2>
+<p>ハーネスを <code>git archive</code> した使い捨てプロジェクトに、本体の評価用題材 expense-webapp の memo（7 人チームの経費申請アプリ。「月末締め」と「25 日締め」の矛盾を仕込んである）を置き、<code>claude -p</code> で各フェーズを新規セッションとして実行した。条件は本体の手動計測（todo-app、2026-09-23）と同型で、acceptEdits・allowedTools 8 種・max-turns 80・予算 $12/発話・ユーザースコープの model/effort を遮断。モデルは方針どおり inherit（実解決 claude-opus-5-5、CLI 2.1.289）。回答者は模擬ユーザー（筆者）で、検証のために保留・わからない・矛盾を意図的に混ぜた。</p>
+
+<figure class="fig">
+<svg viewBox="0 0 980 230" role="img" aria-label="実走のフロー: /00 から /03 まで">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/></marker></defs>
+  <g font-family="var(--body)" font-size="12" fill="var(--fg)">
+    <rect x="10" y="40" width="130" height="70" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="75" y="63" text-anchor="middle" font-weight="700">/00 初期化</text>
+    <text x="75" y="82" text-anchor="middle" fill="var(--muted)">矛盾を検知</text>
+    <text x="75" y="98" text-anchor="middle" fill="var(--muted)">18 ターン $1.18</text>
+    <rect x="170" y="40" width="150" height="70" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="245" y="63" text-anchor="middle" font-weight="700">/01 質問票 85 問</text>
+    <text x="245" y="82" text-anchor="middle" fill="var(--muted)">必須 40 / 任意 45</text>
+    <text x="245" y="98" text-anchor="middle" fill="var(--muted)">17 ターン $2.38</text>
+    <rect x="350" y="40" width="120" height="70" rx="6" fill="var(--warn-soft)" stroke="var(--warn)" stroke-width="1.5"/>
+    <text x="410" y="63" text-anchor="middle" font-weight="700">人が回答</text>
+    <text x="410" y="82" text-anchor="middle" fill="var(--muted)">保留 1・空欄 1</text>
+    <text x="410" y="98" text-anchor="middle" fill="var(--muted)">矛盾 2 を仕込む</text>
+    <rect x="500" y="40" width="190" height="70" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="595" y="60" text-anchor="middle" font-weight="700">/02 確認 → 文書 → レビュー</text>
+    <text x="595" y="78" text-anchor="middle" fill="var(--muted)">第 2 回 3 問・第 3 回 5 問・第 4 回 2 問</text>
+    <text x="595" y="96" text-anchor="middle" fill="var(--muted)">163 ターン $6.58</text>
+    <rect x="720" y="40" width="100" height="70" rx="6" fill="var(--warn-soft)" stroke="var(--warn)" stroke-width="1.5"/>
+    <text x="770" y="70" text-anchor="middle" font-weight="700">承認</text>
+    <text x="770" y="90" text-anchor="middle" fill="var(--muted)">2 問は「後で」</text>
+    <rect x="850" y="40" width="120" height="70" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="910" y="63" text-anchor="middle" font-weight="700">/03 設計書</text>
+    <text x="910" y="82" text-anchor="middle" fill="var(--muted)">308 行 + ADR 5</text>
+    <text x="910" y="98" text-anchor="middle" fill="var(--muted)">47 ターン $2.22</text>
+    <g stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar)" fill="none">
+      <path d="M140,75 L168,75"/><path d="M320,75 L348,75"/><path d="M470,75 L498,75"/><path d="M690,75 L718,75"/><path d="M820,75 L848,75"/>
+    </g>
+    <text x="490" y="150" text-anchor="middle" fill="var(--muted)">合計: 8 発話・245 ターン・45.5 分・$12.36（CLI の定価換算。人の回答時間を除く）</text>
+    <text x="490" y="172" text-anchor="middle" fill="var(--muted)">各フェーズの終わりは「回答を待っています」または「このセッションの作業はここで完了です」の固定様式で停止した</text>
+    <text x="490" y="205" text-anchor="middle" font-size="11.5" fill="var(--muted)">/04 以降（モック・テスト計画・/11・/12）は未実走。未実走の項目は実装の読解だけで答えている</text>
+  </g>
+</svg>
+<figcaption>図 1. 実走の流れと費用。黄色は人（模擬）の入力。</figcaption>
+</figure>
+
+<div class="grid2">
+<figure class="fig">
+<svg viewBox="0 0 420 210" role="img" aria-label="質問の回数ごとの件数: 第1回85、第2回3、第3回5、第4回2">
+  <g font-family="var(--body)" font-size="12" fill="var(--fg)">
+    <text x="12" y="18" font-weight="700">質問の件数（回ごと）</text>
+    <line x1="60" y1="40" x2="60" y2="170" stroke="var(--line)"/>
+    <line x1="60" y1="170" x2="400" y2="170" stroke="var(--line)"/>
+    <g fill="var(--accent)">
+      <rect x="80" y="45" width="60" height="125" rx="4"/>
+      <rect x="160" y="165.6" width="60" height="4.4" rx="2"/>
+      <rect x="240" y="162.6" width="60" height="7.4" rx="2"/>
+      <rect x="320" y="167" width="60" height="3" rx="1.5"/>
+    </g>
+    <g text-anchor="middle" fill="var(--fg)" font-variant-numeric="tabular-nums">
+      <text x="110" y="38">85</text><text x="190" y="158">3</text><text x="270" y="155">5</text><text x="350" y="160">2</text>
+    </g>
+    <g text-anchor="middle" fill="var(--muted)" font-size="11">
+      <text x="110" y="188">第 1 回</text><text x="190" y="188">第 2 回</text><text x="270" y="188">第 3 回</text><text x="350" y="188">第 4 回</text>
+      <text x="110" y="202">被覆表から一括</text><text x="190" y="202">回答の矛盾</text><text x="270" y="202">レビュー指摘</text><text x="350" y="202">再レビュー</text>
+    </g>
+  </g>
+</svg>
+<figcaption>図 2. 第 2 回以降は 5 問以内に収まるが回数の上限は無い。</figcaption>
+</figure>
+<div class="card">
+<h4>質問票 85 問の内訳（第 1 回）</h4>
+<div class="tbl"><table>
+<tr><th>軸</th><th>値</th></tr>
+<tr><td>必須／任意</td><td>40（すべて高影響）／ 45</td></tr>
+<tr><td>種別</td><td>単一選択 47・記述 35・複数選択 3</td></tr>
+<tr><td>分類</td><td>機能要件 35・環境 17・NFR 9・運用自動化 6・ユーザー 6・画面横断 4・他 8</td></tr>
+<tr><td>仮回答・選択肢</td><td>仮回答 45（任意の全件）、選択肢 51。高影響に仮回答 0・選択肢 36</td></tr>
+<tr><td>1 問の大きさ</td><td>非空行 平均 7.2・最大 9。質問文は平均 25 文字</td></tr>
+<tr><td>隠し要件の被覆率</td><td>16 / 16（100%）</td></tr>
+<tr><td>spec-critic</td><td>質問票レビュー 1 回（BLOCKER 0 / MAJOR 10）</td></tr>
+</table></div>
+</div>
+</div>
+
+<h3>決定論の検証（tools/questionnaire.py）</h3>
+<p>細工した質問票（高影響に仮回答・未回答の再掲・必須の「後で」・「わからない」・仮回答なしの空欄）で <code>check</code> / <code>stats</code> / <code>ledger</code> を実行した。</p>
+<div class="tbl"><table>
+<tr><th>入力</th><th>結果</th></tr>
+<tr><td>高影響に仮回答</td><td>ERROR（設計どおり）</td></tr>
+<tr><td>未回答質問の同文再掲</td><td>WARN のみ（回答済みの再出題なら ERROR）</td></tr>
+<tr><td>必須の「後で」「未回答」</td><td>WARN「/02 はこの項目だけをチャットで確認する」</td></tr>
+<tr><td>記述式で仮回答なし</td><td>WARN</td></tr>
+<tr><td><code>ledger</code></td><td>「わからない」→リスク行、空欄の任意→前提行。仮回答なしの空欄は「仮回答なしを採用」という空の行になる</td></tr>
+<tr><td>テンプレート冒頭文</td><td>「全部を一度に答えなくてよい」はあるが「空欄＝仮回答どおり」は無い（実走ではエージェントが書き足した）</td></tr>
+</table></div>
+
+<!-- ===================================================== 2 -->
+<h2 id="s2">2. 所感への回答</h2>
+<p>各項目の見出しの下に、<span class="tag t-now">現状</span> 実装がどう動くか、<span class="tag t-verify">実走</span> 実機で何が起きたか、<span class="tag t-gap">ギャップ</span> 要望との差、<span class="tag t-fix">直す場所</span> どのファイルをどう直すか、を示す。コードの抜粋は本体の該当ファイルから引用した。</p>
+
+<figure class="fig">
+<svg viewBox="0 0 980 300" role="img" aria-label="要件定義フェーズの仕組みと修正箇所">
+  <defs><marker id="ar2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/></marker></defs>
+  <g font-family="var(--body)" font-size="12" fill="var(--fg)">
+    <rect x="10" y="30" width="110" height="56" rx="6" fill="var(--surface)" stroke="var(--line)"/>
+    <text x="65" y="54" text-anchor="middle" font-weight="700">memo.md</text><text x="65" y="72" text-anchor="middle" fill="var(--muted)">自由記述</text>
+    <rect x="150" y="30" width="150" height="56" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="225" y="50" text-anchor="middle" font-weight="700">/01 被覆表</text><text x="225" y="68" text-anchor="middle" fill="var(--muted)">11 分類 Clear/Partial/Missing</text>
+    <rect x="330" y="30" width="150" height="56" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="405" y="50" text-anchor="middle" font-weight="700">質問票 第 1 回</text><text x="405" y="68" text-anchor="middle" fill="var(--muted)">仮回答・選択肢・根拠・反映先</text>
+    <rect x="510" y="30" width="110" height="56" rx="6" fill="var(--surface)" stroke="var(--line)"/>
+    <text x="565" y="50" text-anchor="middle" font-weight="700">spec-critic</text><text x="565" y="68" text-anchor="middle" fill="var(--muted)">質問の側を検査</text>
+    <rect x="650" y="30" width="110" height="56" rx="6" fill="var(--warn-soft)" stroke="var(--warn)" stroke-width="1.5"/>
+    <text x="705" y="50" text-anchor="middle" font-weight="700">人が回答</text><text x="705" y="68" text-anchor="middle" fill="var(--muted)">エディタで md を編集</text>
+    <rect x="790" y="30" width="180" height="56" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="880" y="50" text-anchor="middle" font-weight="700">/02 check → 矛盾確認</text><text x="880" y="68" text-anchor="middle" fill="var(--muted)">必須未回答と食い違いを 5 問以内で</text>
+    <rect x="790" y="130" width="180" height="56" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="880" y="150" text-anchor="middle" font-weight="700">要件文書 4 つ＋台帳</text><text x="880" y="168" text-anchor="middle" fill="var(--muted)">requirements / nfr / glossary / environment</text>
+    <rect x="590" y="130" width="160" height="56" rx="6" fill="var(--surface)" stroke="var(--line)"/>
+    <text x="670" y="150" text-anchor="middle" font-weight="700">spec-critic（文書）</text><text x="670" y="168" text-anchor="middle" fill="var(--muted)">BLOCKER/MAJOR → 第 N 回へ</text>
+    <rect x="390" y="130" width="160" height="56" rx="6" fill="var(--warn-soft)" stroke="var(--warn)" stroke-width="1.5"/>
+    <text x="470" y="150" text-anchor="middle" font-weight="700">承認</text><text x="470" y="168" text-anchor="middle" fill="var(--muted)">「この内容で完了としてよいですか」</text>
+    <rect x="190" y="130" width="160" height="56" rx="6" fill="var(--surface)" stroke="var(--line)"/>
+    <text x="270" y="150" text-anchor="middle" font-weight="700">GATE done・コミット</text><text x="270" y="168" text-anchor="middle" fill="var(--muted)">gate_status.py set</text>
+    <g stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar2)" fill="none">
+      <path d="M120,58 L148,58"/><path d="M300,58 L328,58"/><path d="M480,58 L508,58"/><path d="M620,58 L648,58"/><path d="M760,58 L788,58"/>
+      <path d="M880,86 L880,128"/><path d="M790,158 L752,158"/><path d="M590,158 L552,158"/><path d="M390,158 L352,158"/>
+      <path d="M670,130 C 670,100 720,96 760,86" stroke-dasharray="4 3"/>
+    </g>
+    <text x="690" y="110" font-size="11" fill="var(--bad)">指摘から第 N 回の質問が派生（回数上限なし）</text>
+    <g font-size="11" fill="var(--good)" font-weight="700">
+      <text x="340" y="22">① 冒頭に終了見通し・空欄案内</text>
+      <text x="340" y="104">② 推奨の明示・高影響に候補・行の分離・機能別見出し</text>
+      <text x="792" y="200">③ 台帳を未決だけに絞る</text>
+      <text x="592" y="200">④ 派生質問は前回回答の範囲に限定、3 回目以降は理由必須</text>
+    </g>
+  </g>
+</svg>
+<figcaption>図 3. 要件定義フェーズの仕組み（実線＝設計どおりの流れ、破線＝実走で観測した派生質問の経路）。緑の番号は本レポートの修正案の位置。</figcaption>
+</figure>
+
+<!-- ---------- Q1 -->
+<div class="item" id="q1">
+<h3>Q1. 100 問を超えても質問が終わらず、いつ要件定義が終わるか見えない</h3>
+<p><span class="tag t-now">現状</span> 「問数は減らさない」が明文化された設計方針で、負荷は仮回答・順序・分割回答で下げるとしている（D098 決定 2。Spec Kit の 5 問上限は不採用）。終了を決めるのは spec-critic の BLOCKER/MAJOR がゼロになることと人の承認で、回数の上限や被覆率による打ち切りは無い。</p>
+<div class="src">.github/skills/requirements-elicitation/SKILL.md 95-96</div>
+<pre><code>5. **並べる**: 必須 → 高影響 → その他の順、分類ごとに見出しを付け、冒頭に「進捗: 回答 n / N」の行を置く。
+   **問数は減らさない**（粒度は要件の厚さに従う）。負荷は仮回答・順序・分割回答で下げる。</code></pre>
+<div class="src">.github/agents/requirements.agent.md 手順 3・6（抜粋）</div>
+<pre><code>回答を読んで追加質問が要るときは、質問票に「第 N 回」節を追記して同じ手順を繰り返す
+（回答済みの ID は再出題しない。`check` が検出する）。
+...
+**文書の前提が大きく変わったときは、同じゲート内でもう 1 回だけ再レビューしてよい**</code></pre>
+<p><span class="tag t-verify">実走</span> 85 → 3 → 5 → 2 問の 4 回。第 2 回は回答同士の矛盾、第 3 回は spec-critic の BLOCKER/MAJOR から派生、第 4 回は再レビューから派生した。各回は 5 問以内で、すべてに「どの回答・どの指摘から来たか」の根拠が付いていた。終わりは「spec-critic の指摘がゼロ」で決まり、人からは見えない。</p>
+<p><span class="tag t-gap">ギャップ</span> 終了見通しの表示が無い。被覆表（分類ごとの Clear/Partial/Missing）は内部で持っているのに利用者に残件として見せていない。派生質問の範囲に制限が無い。</p>
+<div class="fix"><b>直す場所</b>
+<ul>
+<li><code>tools/questionnaire.py</code> の <code>TEMPLATE</code> と <code>stats</code>: 冒頭に「終了見通し」欄（Partial/Missing の残り分類数、原則 2 回で閉じる、3 回目以降は理由を明示）を出力する。</li>
+<li><code>requirements.agent.md</code> 手順 3: 「第 2 回以降は前回回答から派生した論点に限る。新規の分類の論点は質問にせず §7 台帳の前提にする」を追記。</li>
+<li><code>spec-critic.agent.md</code> 要件文書の観点: 「人に聞き直すべき指摘」と「エージェントが仮置きして台帳に記録すべき指摘」を分けて出力させる（第 3 回の 5 問のうち、締め日が休日のときの扱いなどは仮置きで足りた）。</li>
+</ul></div>
+</div>
+
+<!-- ---------- Q2 -->
+<div class="item" id="q2">
+<h3>Q2. 回答候補を AI が提示し、推奨も記載してほしい</h3>
+<p><span class="tag t-now">現状</span> 質問は「記述／単一選択／複数選択」の種別を持ち、選択式には選択肢が付く。記述式には「仮回答」（memo と探索から書いた AI の理解の下書き）が付き、「仮回答どおり」と書くか直すだけで済む。任意は空欄なら仮回答を採用し、/02 が採用一覧を示す。高影響（デプロイ先・自動化境界・データ削除・認証・費用・法規・スコープ外）には黙従を防ぐため意図的に仮回答を付けず、<code>check</code> が ERROR にする。</p>
+<div class="src">.github/skills/requirements-elicitation/SKILL.md 67-75（1 問の形）</div>
+<pre><code>### Q-03-2 [必須] 承認フローは何段階で、差し戻しはどこへ戻りますか
+- 分類: 03 機能要件
+- 種別: 記述                 ← 記述 / 単一選択 / 複数選択（選択なら「- 選択肢:」を足す）
+- 根拠: memo.md 2 行目「社員が申請 → 上長が承認 → 総務が確認」
+- 反映先: requirements.md §5 US-002
+- 仮回答: 2 段階（上長承認 → 総務確認）。差し戻しは申請者へ戻り、再申請で最初から。
+- 回答:</code></pre>
+<div class="src">tools/questionnaire.py check()（抜粋）</div>
+<pre><code>if q["high"] and q["draft"] and not q["draft"].startswith("（") ...:
+    errors.append(f"L{q['line']} {q['id']}: [高影響] に仮回答が付いている(明示回答を求める質問には仮回答を置かない)")
+if q["draft"] == "" and not q["high"] and q["fields"].get("種別", "記述").startswith("記述"):
+    warnings.append(f"L{q['line']} {q['id']}: 記述式なのに仮回答が無い(下書きを置くと回答負荷が下がる)")</code></pre>
+<p><span class="tag t-verify">実走</span> 85 問中 選択肢あり 51、仮回答あり 45（任意の全件）。高影響 40 問のうち 36 問には選択肢が付き、記述式の 4 問（Python の版・上長の対応・切替日の連絡・保存期間）だけが候補なしだった。「推奨」の表示は無い。</p>
+<p><span class="tag t-gap">ギャップ</span> 推奨の独立した表示が無い（仮回答が兼ねる）。選択式で推奨を先頭に置く規定も無い。高影響の記述式は候補も推奨も無い。設計意図は「推奨を付けない」であって「候補を出さない」ではない。</p>
+<div class="fix"><b>直す場所</b>
+<ul>
+<li>SKILL.md の 1 問の形に <code>- 推奨: ○○（理由 1 行）</code> を追加。高影響は「候補は並べるが推奨は付けない」に変更し、候補外は自由記述で受ける。</li>
+<li><code>questionnaire.py</code>: 高影響に <code>推奨:</code> が付いていたら ERROR（黙従対策を維持）、選択式に推奨が無ければ WARN。</li>
+<li>テンプレート冒頭文に「任意は空欄で仮回答どおり。必須だけ書けばよい」を入れる（現状はチャットの案内と指示層にしか無く、出力ごとに揺れる）。</li>
+</ul>
+<div class="src">修正案（TEMPLATE 冒頭）</div>
+<pre><code>回答の書き方: 「- 回答:」の後ろ（または次行以降）に書く。仮回答で合っていれば「仮回答どおり」、
+分からなければ「わからない」、後回しにするなら「後で」と書く。全部を一度に答えなくてよい。
+<span class="add">+ 任意の質問は空欄のままで「仮回答どおり」の意味になる。必須（[必須]）だけ必ず書く。
++ 選択式の「推奨」は AI の案。合っていれば回答欄に書き写すか空欄のままでよい。</span></code></pre>
+</div>
+</div>
+
+<!-- ---------- Q3 -->
+<div class="item" id="q3">
+<h3>Q3. 質問の内容が長く、回答コストが高い</h3>
+<p><span class="tag t-now">現状</span> 1 問は「分類・種別・根拠・反映先・仮回答・回答」の 6 行構造。根拠と反映先は AI 側の追跡用（なぜ聞くか・どこに書くか）で回答者が読む必要は無いが、同じ段に並ぶため読み飛ばせない。質問文の長さに上限は無い。「1 問 1 論点」「探索で分かることは聞かない」の規律はある。</p>
+<p><span class="tag t-verify">実走</span> 85 問で 765 行・49KB。1 問あたり非空行 平均 7.2、質問文自体は平均 25 文字と短い。長いのは質問ではなく構造。</p>
+<div class="grid2">
+<div class="card"><h4>いまの 1 問（7 行）</h4>
+<pre><code>### Q-09-1 [必須] [高影響] アプリをどの形で動かしますか
+- 分類: 09 デプロイ・リリース環境
+- 種別: 単一選択
+- 選択肢: チームの誰か 1 台の PC で動かし… / 常時稼働の… / …
+- 根拠: memo.md 14 行目「社内の PC ですぐ動かしたい」
+- 反映先: environment.md デプロイ先
+- 回答:</code></pre></div>
+<div class="card"><h4>修正案（回答者向け 4 行＋折りたたみ）</h4>
+<pre><code>### Q-09-1 [必須] [高影響] アプリをどの形で動かしますか
+- 選択肢: A. 誰か 1 台の PC / B. 社内サーバー / C. 共有フォルダ
+- 推奨: （高影響のため推奨なし）
+- 回答:
+<span class="add">&lt;!-- ai: 分類 09 / 根拠 memo 14 行目 / 反映先 environment.md デプロイ先 --&gt;</span></code></pre></div>
+</div>
+<div class="fix"><b>直す場所</b>
+<ul>
+<li>SKILL.md「質問の出し方」の 1 問の形を、回答者向け行（質問文・選択肢・推奨・回答欄）と AI 向け行（分類・根拠・反映先。HTML コメントか末尾付録）に分ける。<code>questionnaire.py</code> のパーサを両形式対応にする。</li>
+<li>質問票の先頭に「まず答える N 問」（必須＋高影響）を集め、残りは「空欄でよい任意」と見出しで示す。</li>
+<li>質問文は 1〜2 文・60 文字以内を目安に（spec-critic の質問票観点に追加）。</li>
+</ul></div>
+</div>
+
+<!-- ---------- Q4 -->
+<div class="item" id="q4">
+<h3>Q4. 機能ごと・画面ごとに分類して質問してほしい（決まっていないことと終わりが見える）</h3>
+<p><span class="tag t-now">現状</span> 質問 ID は <code>Q-&lt;分類 2 桁&gt;-&lt;連番&gt;</code>、分類は 11 種（目的・ユーザー・機能要件・NFR・スコープ外・制約・成功指標・用語・環境・運用自動化・画面横断）。画面については「画面横断の仕様」を先に確認するだけで、画面ごとの分類は無い。</p>
+<div class="src">.github/skills/requirements-elicitation/SKILL.md 63-65</div>
+<pre><code>1 質問は次の形（ID は `Q-&lt;分類 2 桁&gt;-&lt;連番&gt;`。
+分類番号は上の質問カテゴリ 1〜10 と「画面横断の仕様」= 11）。</code></pre>
+<p><span class="tag t-verify">実走</span> 機能要件 35 問が 1 節に並び、申請・承認・却下・削除・集計・通知・カテゴリ管理が混在した。環境 17 問も 1 節。</p>
+<p><span class="tag t-gap">ギャップ</span> 機能・画面単位の小見出しと、その単位の進捗・未確定の集計が無い。</p>
+<div class="fix"><b>直す場所</b>
+<ul>
+<li>/01 の最初に memo から「機能・画面一覧」の叩き台を起こし、認識合わせの節で合意する（既存の「認識合わせ」節を拡張）。</li>
+<li>ID を <code>Q-03-&lt;機能キー&gt;-&lt;連番&gt;</code>（例 <code>Q-03-approve-2</code>）とし、分類 03・11 の中を機能別小見出しにする。<code>questionnaire.py stats</code> に機能別の「回答 n / N・未確定 m」を追加。</li>
+<li>§7 台帳と第 N 回の質問も同じ機能キーを持たせ、「機能ごとに何が決まっていないか」を 1 表で出す（Q7 とセット）。</li>
+</ul>
+<div class="src">修正案（questionnaire.py stats の出力）</div>
+<pre><code>機能別: 申請 12/12（未確定 0） / 承認・却下 9/11（未確定 2: Q-03-approve-5, Q-03-approve-9）
+        月次集計 6/8（未確定 2） / 通知 3/3 / カテゴリ管理 2/2 / 環境 15/17（未確定 2）</code></pre>
+</div>
+</div>
+
+<!-- ---------- Q5 -->
+<div class="item" id="q5">
+<h3>Q5. 保留した回答は、後から答えたときどう要件定義に吸収されるか</h3>
+<p><span class="tag t-now">現状</span> 「後で／保留」は予約語。必須なら /02 がその項目だけをチャットで個別確認する。任意なら仮回答を採用し、<code>requirements.md</code> §7「未確定事項（前提・リスク台帳）」に A-nnn 行として記録する。「わからない」はリスク行。後から回答が来たら質問票の「第 N 回」に追記し反映先を更新する。設計エージェントは着手前に §7 を点検し、設計判断に直結する未確定があれば差し戻す。</p>
+<div class="src">tools/questionnaire.py ledger_rows()（抜粋）</div>
+<pre><code>if q["status"] == "unknown":
+    kind = "リスク"; body = f"{q['id']} に「わからない」: 仮回答「{q['draft'] or '（仮回答なし）'}」を前提に進める"
+elif q["status"] in ("unanswered", "later") and not q["required"]:
+    kind = "前提"; body = f"{q['id']} 未回答: 仮回答「{q['draft'] or '（仮回答なし）'}」を採用"
+...
+rows.append(f"| A-{n:03d} | {kind} | {body} | （{dest} に影響。要記入） | 設計フェーズ着手前に確認 |")</code></pre>
+<div class="src">.github/agents/design.agent.md 23-37（着手前の前提チェック）</div>
+<pre><code>- 「未確定事項」が、設計判断に直結する項目を含んでいないか。
+これらが不十分な場合、**自分で仮定を置いて設計を進めてはいけない**。
+`要件定義に戻る` ハンドオフを使い、不足している具体的な項目を指摘してユーザーに差し戻す。</code></pre>
+<p><span class="tag t-verify">実走</span> 必須の「後で」と空欄は /02 がチャットで確認した。「わからない」2 問はリスク行になり、確認方法（運用開始後の初回不在時／受け入れテスト時）が付いた。未回答の必須 2 問を残したまま承認すると「後で」として A-053 に記録され、設計は「どちらでも動くように作る」と宣言した。</p>
+<p><span class="tag t-gap">ギャップ</span> A-nnn を「解消済み」にする手順と状態列が無く、台帳に残り続ける。仮回答の無い任意が空欄だと「仮回答なしを採用」という空の前提ができる。</p>
+<div class="fix"><b>直す場所</b>
+<ul>
+<li><code>requirements_template.md</code> §7 に状態列（open／解消／設計へ持ち越し）と解消日を追加。<code>ledger</code> は既存の A-nnn を読み、解消済みを別表へ移す。</li>
+<li>仮回答の無い任意質問は <code>check</code> で ERROR（候補を付けるか必須にする）。</li>
+<li>/12 と /13 の手順に「A-nnn の解消を記録する」を追記（運用中に答えが出る前提に対応）。</li>
+</ul></div>
+</div>
+
+<!-- ---------- Q6 -->
+<div class="item" id="q6">
+<h3>Q6. 矛盾した回答の整合性チェックは行われるか。遡っての仕様変更はどこまで考慮されているか</h3>
+<p><span class="tag t-now">現状</span> 機械検査は「同じ質問文の再出題」と ID の参照整合（<code>trace-check.py</code>）だけ。意味的な矛盾は spec-critic（別コンテキストの独立レビュアー）が担い、要件定義完了の前に 1 回、前提が大きく変わったときにもう 1 回だけ呼ばれる。承認後の変更は「差分駆動」で、要件 ID → 設計のトレーサビリティ表 → タスク → テストケース → 実コードの順に影響範囲を辿り、該当フェーズだけ再ゲートする。全フェーズのやり直しはしない。</p>
+<div class="src">.github/agents/spec-critic.agent.md 観点 4・8</div>
+<pre><code>4. **矛盾・重複**: ストーリー間、機能要件とNFR、スコープとスコープ外の間に矛盾がないか。
+8. **仮回答の丸呑み**: ... 「仮回答どおり」で確定した項目のうち、要件の他の記述や memo と食い違うものは MAJOR（D098）。</code></pre>
+<div class="src">AGENTS.md「差分駆動の原則」／ change-request/SKILL.md 45-53</div>
+<pre><code>2. **影響のある要件・設計変更** → 変更部分について**該当フェーズだけ再ゲート**（影響範囲はトレーサビリティ表から辿る）。
+影響範囲の特定: 要求ID → 設計のトレーサビリティ表 → tasks.md → test-plan.md の該当テストケース
+→ 実コード（grep。文書の記載を鵜呑みにしない）→ 関連 ADR</code></pre>
+<p><span class="tag t-verify">実走</span> memo の矛盾（月末／25 日）は /00 と /01 の両方が検出し必須質問にした。回答同士の矛盾は、/02 が回答を読み込む段階で、仕込んだ 2 件（締め日 25 日 vs 暦月の呼び方、通知不要 vs メール通知）と意図しない 1 件（社内 Git サーバー vs ローカル Git のみ）をすべて検出し、根拠つきの選択式で再確認した。文書作成後の spec-critic も BLOCKER 1 件（締め後の扱いの矛盾）を検出した。</p>
+<div class="src">実走で /02 が質問票に追記した第 2 回（抜粋）</div>
+<pre><code>### Q-03-38 [必須] [高影響] 新規申請があったとき、上長へメールで通知しますか
+- 経路: チャット
+- 根拠: Q-03-28「新規申請があったら上長へメールで通知する」と、Q-03-26「通知は不要」・
+  Q-03-27「メール通知を使わないので不要」・Q-09-13「秘密情報は使わない（メール通知なし）」が食い違う</code></pre>
+<p><span class="tag t-gap">ギャップ</span> 回答読み込み時の矛盾検出は指示層に明文化されておらず、今回は機能したが機械保証ではない。「後の回答が前の回答を覆す」ときの優先規則と上書き理由の記録が未定義。遡及（/12）は本検証では未実走。</p>
+<div class="fix"><b>直す場所</b>
+<ul>
+<li><code>requirements.agent.md</code> 手順 3 に「反映先が同じ回答の食い違いは第 N 回で確認する。上書き時は旧値と理由を質問票に残す」を明記。</li>
+<li><code>questionnaire.py check</code> に「同一反映先に異なる値」の WARN を追加（反映先文字列の一致で近似）。</li>
+<li>/12 の影響範囲提示を、要件フェーズ内の差し戻しにも使う様式にする（変更前に影響範囲の一覧を出して承認を取る）。</li>
+</ul></div>
+</div>
+
+<!-- ---------- Q7 -->
+<div class="item" id="q7">
+<h3>Q7. 決まらない要素を「課題一覧」として整理する仕組みは無いか</h3>
+<p><span class="tag t-now">現状</span> 該当するのは <code>requirements.md</code> §7 の前提・リスク台帳（ID／種別／内容／外れた場合の影響／確認期限）と <code>progress.md</code> の「未確定事項・申し送り」。独立した課題管理表は無い。</p>
+<p><span class="tag t-verify">実走</span> 台帳は 52 行（前提 46・リスク 6）。うち 38 行は「Q-xx 未回答: 仮回答を採用 … 確認済み（採用一覧に異論なし）」で、人が見るべき未決 14 行（リスク 6・エージェントの推測で置いた前提 8）が埋もれた。</p>
+<div class="fix"><b>直す場所</b>
+<ul>
+<li><code>ledger</code> の出力を「未決（open）」と「確認済み」の 2 表に分け、§7 には未決だけ、確認済みは付録へ。</li>
+<li>Q4 の機能キーで未決を機能別に集計し、質問票冒頭の終了見通しに「機能別の未決件数」を出す。</li>
+<li>承認時のレビューパック（§3）に未決一覧を必ず載せる。</li>
+</ul></div>
+</div>
+
+<!-- ---------- Q8 -->
+<div class="item" id="q8">
+<h3>Q8. モックの作成タイミング。アーキテクトの前に叩き台の画面モックで画面や機能を定義したい</h3>
+<p><span class="tag t-now">現状</span> 画面モックは設計フェーズの詳細設計の後（design エージェント手順 5.5）に、主要画面の自己完結 HTML として <code>docs/02-design/ui/</code> に作り、ブラウザで目視確認する。モックの合意は設計ゲート承認の前提条件で、spec-critic は「UI があるのにモックが無い」を MAJOR にする。要件定義では画面横断の仕様を文章で確認するだけ。</p>
+<div class="src">.github/agents/design.agent.md 93-98</div>
+<pre><code>5.5. **アプリがブラウザUI・画面を持つ場合、`.github/skills/ui-design-mockup/SKILL.md` の
+   手順で主要画面の自己完結型HTMLモックアップを `docs/02-design/ui/` に作成し、
+   ユーザーにブラウザで開いて視覚確認してもらう。** ...
+   モックアップの合意は設計ゲート承認の前提条件（UIが無い場合は「該当なし」と明記）。</code></pre>
+<div class="src">.github/prompts/03-design-architecture.prompt.md</div>
+<pre><code>design エージェントの進め方のうち、着手前の前提チェックとステップ1〜4
+（要件の読み込み → 技術スタックの提案・選定 → `architecture.md` の作成 → ADR の記録）を実行してください。
+アーキテクチャが固まったら、詳細設計以降は `/04-design-detailed` で続行します。</code></pre>
+<p><span class="tag t-verify">実走</span> /03 は architecture.md と ADR で終わり、モック・spec-critic・承認を /04 へ送った（/04 は未実走）。</p>
+<p><span class="tag t-gap">ギャップ</span> 要件段階の叩き台モックが無い。</p>
+<div class="fix"><b>直す場所</b>
+<ul>
+<li><code>requirements.agent.md</code> に任意ステップ「ラフモック」（手順 5 と 6 の間）: 機能・画面一覧（Q4）から主要 3 画面を自己完結 HTML で作り、画面と機能の定義の合意に使う。技術スタック未定でも作れる。</li>
+<li>ラフモックは <code>docs/01-requirements/ui-sketch/</code> に置き、設計フェーズの正式モック（design-tokens.md 付き）で置き換える。要件に見た目の詳細を混ぜない注意を SKILL に明記。</li>
+<li>Figma を使う案件は §6 の経路で代替できる。</li>
+</ul></div>
+</div>
+
+<!-- ---------- Q9 -->
+<div class="item" id="q9">
+<h3>Q9. コードをベースにテストケースを作ることはあるか。決定表 → 状態遷移表 → 実装前のテストケース → トレーサビリティマトリクスの流れを組み込めるか</h3>
+<p><span class="tag t-now">現状</span> /07 は要件の受け入れ条件（Given/When/Then）と architecture.md から導出し、各ケースに要件 ID を紐づける。コードからの導出は無い。/07 は実装完了後に動き、作成後は確認を求めず /08 へ自動継続する（全自動区間）。決定表は無い。状態遷移は設計で「複雑な場合に図」、テスト観点に 1 行だけ。<code>trace-check.py</code> は「どこからも参照されない要件」「存在しない ID の参照」を検査するが、「テストで覆われていない要件」は検出できない（設計から参照されていれば OK）。</p>
+<div class="src">.github/prompts/07-test-plan.prompt.md</div>
+<pre><code>前提: 実装フェーズ（`docs/03-implementation/tasks.md` の全タスク）が完了していること。
+...自動実行区間なので作成後に確認は求めず、そのまま `/08-test-execute` の区間（テストコードの実装・実行）へ自動継続します</code></pre>
+<div class="src">tools/trace-check.py（検査の要約）</div>
+<pre><code>(a) orphan:   requirements.md の全要件ID のうち、設計・タスク・テストの**いずれからも**参照されないもの
+(b) dangling: 設計・タスク・テストが参照している ID のうち、要件側に実在しないもの
+→ 「テストからだけ参照されていない要件」は検出対象外</code></pre>
+<figure class="fig">
+<svg viewBox="0 0 980 190" role="img" aria-label="テスト設計の提案フロー">
+  <defs><marker id="ar3" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/></marker></defs>
+  <g font-family="var(--body)" font-size="12" fill="var(--fg)">
+    <rect x="10" y="30" width="170" height="70" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="95" y="52" text-anchor="middle" font-weight="700">/02 要件＋決定表</text><text x="95" y="70" text-anchor="middle" fill="var(--muted)">条件分岐を持つ要件に付ける</text><text x="95" y="88" text-anchor="middle" fill="var(--warn)">人が確認（要件承認）</text>
+    <rect x="210" y="30" width="170" height="70" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="295" y="52" text-anchor="middle" font-weight="700">/04 詳細設計＋状態遷移表</text><text x="295" y="70" text-anchor="middle" fill="var(--muted)">状態を持つ画面・実体に必須</text><text x="295" y="88" text-anchor="middle" fill="var(--warn)">人が確認（設計承認）</text>
+    <rect x="410" y="30" width="170" height="70" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="495" y="52" text-anchor="middle" font-weight="700">/05 の直後にテスト草案</text><text x="495" y="70" text-anchor="middle" fill="var(--muted)">表の行・セルから機械的に起こす</text><text x="495" y="88" text-anchor="middle" fill="var(--muted)">（/07 を実装前へ前倒し）</text>
+    <rect x="610" y="30" width="170" height="70" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="695" y="52" text-anchor="middle" font-weight="700">trace-check 拡張</text><text x="695" y="70" text-anchor="middle" fill="var(--muted)">要件×ケースのマトリクス</text><text x="695" y="88" text-anchor="middle" fill="var(--muted)">テスト未カバー要件を検出</text>
+    <rect x="810" y="30" width="160" height="70" rx="6" fill="var(--warn-soft)" stroke="var(--warn)" stroke-width="1.5"/>
+    <text x="890" y="58" text-anchor="middle" font-weight="700">テスト設計の承認</text><text x="890" y="78" text-anchor="middle" fill="var(--muted)">人の確認は 1 回に集約</text>
+    <g stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar3)" fill="none">
+      <path d="M180,65 L208,65"/><path d="M380,65 L408,65"/><path d="M580,65 L608,65"/><path d="M780,65 L808,65"/>
+    </g>
+    <text x="490" y="140" text-anchor="middle" fill="var(--muted)">承認後の /06 → /08 は全自動区間のまま。実装中の単体テストは草案のケース ID を参照する</text>
+    <text x="490" y="165" text-anchor="middle" font-size="11" fill="var(--muted)">コード由来のテスト（分岐網羅）は /08 の補助に位置づけ、仕様由来のケースを正とする</text>
+  </g>
+</svg>
+<figcaption>図 4. 提案の 4 段階を既存フェーズに当てはめた流れ。</figcaption>
+</figure>
+<div class="fix"><b>直す場所</b>
+<ul>
+<li><code>requirements_template.md</code> に「決定表」節（条件×動作）、<code>design.agent.md</code> 手順 5 に「状態遷移表（状態×イベント）」を必須項目として追加。</li>
+<li><code>test_plan_template.md</code> に「要件×ケースのマトリクス」節を追加し、<code>trace-check.py</code> に <code>--require-test</code>（テストから参照されない要件を NG）を実装。</li>
+<li>/05 の prompt に「テスト草案の作成」を追加し、/07 は草案の確定と差分だけにする。<code>test.agent.md</code> 手順 1 の「確認は求めず」を「テスト設計の承認 1 回」に変更。</li>
+<li>決定表・遷移表からのケース生成は <code>tools/</code> に決定論スクリプトを置く（組合せは PICT 等の既存ツールで補う）。</li>
+</ul></div>
+</div>
+
+<!-- ---------- Q10 -->
+<div class="item" id="q10">
+<h3>Q10. 既存システムのリプレイスで、既存設計書と要件を突合するステップが無いように見える</h3>
+<p><span class="tag t-now">現状</span> 既存システムの入口は <code>/11-brownfield-intake</code>。既存コードから as-is の要件・アーキテクチャ・環境・テスト計画を逆起こし（to-be は混ぜない。触る領域と背骨に絞る）し、spec-critic と横断整合監査で「文書にあるが実在しない機能・文書化漏れ」を潰し、人の承認でゲートを初期化して、以後は <code>/12-change-request</code>（差分駆動）と <code>/13-converge</code>（docs と実装の乖離検出）で運用する。/00 は既存コードを検知すると /11 へ誘導する。</p>
+<div class="src">.github/skills/brownfield-intake/SKILL.md 19-24（原則）</div>
+<pre><code>as-is を書く。to-be を混ぜない。
+全部を文書化しない。対象は「これから触る領域」と「システムの背骨（全体構成・環境・主要フロー）」に絞る。
+残りは「未逆起こし」と明記する。</code></pre>
+<div class="tbl"><table>
+<tr><th>ご列挙のステップ</th><th>現状</th></tr>
+<tr><td>現行ソースの解析</td><td><span class="pill p-good">あり</span> /11 手順 2・4</td></tr>
+<tr><td>現行ソースと現行仕様書の差異抽出</td><td><span class="pill p-warn">一部</span> 突き合わせ相手は逆起こしした as-is 文書。既存の設計書（Word/Excel）を読み込んで比較する手順は無い</td></tr>
+<tr><td>最新仕様書の整備</td><td><span class="pill p-good">あり</span> as-is として新規生成（既存仕様書を埋める形は未対応）</td></tr>
+<tr><td>要件定義書への影響点整理・反映判定</td><td><span class="pill p-good">あり</span> /12 の影響範囲追跡（ハーネス形式の docs ができた後）</td></tr>
+<tr><td>最新ソースと要件定義書の抜け漏れ</td><td><span class="pill p-good">あり</span> /13 と trace-check</td></tr>
+<tr><td>新旧テスト仕様書の比較・テスト範囲漏れ</td><td><span class="pill p-bad">無い</span> /11 は既存テストの棚卸しと 1 回実行まで</td></tr>
+<tr><td>リプレース型（新システムで置き換える）</td><td><span class="pill p-bad">無い</span> /11 は既存コードを引き継いで改修し続ける前提</td></tr>
+</table></div>
+<div class="fix"><b>直す場所</b>
+<ul>
+<li>新スキル <code>replace-intake</code>（/11 の派生）: 既存設計書の取り込み（Word/Excel/PDF → Markdown、<code>docs/00-overview/legacy/</code>）→ 現行ソースとの差異抽出（spec-critic の横断整合監査を流用）→ 最新仕様書 → 新要件への影響整理（/12 の辿り方）→ 新旧テスト仕様の比較表（test_plan_template の対応要件 ID 列で突合）。</li>
+<li><code>orchestrator.agent.md</code> 手順 0 の brownfield 検知に「既存設計書だけがある（コード無し）」の分岐を追加し、replace-intake へ誘導。</li>
+<li>利用側が Claude で行っている差分比較の実践を /10 の 4 点セットで受け取り、手順の原型にする。</li>
+</ul></div>
+</div>
+
+<!-- ---------- Q11 -->
+<div class="item" id="q11">
+<h3>Q11. ハーネスの育成・メンテナンスは利用側ではなく提供側で行うという認識に乖離は無いか</h3>
+<p><span class="tag t-now">現状</span> 乖離は無い。設計上の分担は次のとおり。</p>
+<div class="tbl"><table>
+<tr><th>誰が</th><th>何を</th><th>どこで</th></tr>
+<tr><td>利用プロジェクト</td><td>教訓を <code>docs/00-overview/learnings.md</code> に都度記録（次回から自動注入）。<code>/10-retrospective</code> で摩擦を「ハーネス改善／プロジェクト固有／一過性」に分類し、改善提案を 4 点セット（対象・問題・提案・根拠）で作る。本体は直接編集しない</td><td>各案件</td></tr>
+<tr><td>本体の保守者（提供側）</td><td><code>/90-apply-retrospective</code> で採否を判断・適用、<code>DECISIONS.md</code> に根拠を記録、CI 通過。提案台帳 <code>audits/PROPOSALS.md</code> で状態管理</td><td>本体リポジトリ</td></tr>
+<tr><td>利用プロジェクト（更新）</td><td><code>/91-sync-from-harness</code> で本体の新版を取り込む（dry-run → 人が <code>--apply</code>）。案件固有のスキル・learnings は上書きされない</td><td>各案件</td></tr>
+</table></div>
+<div class="src">.github/skills/harness-retrospective/SKILL.md 58-69（抜粋）</div>
+<pre><code>ハーネス本体への還流方法（人間の作業）: issue にする、または本体リポジトリを開いた新しいセッションで
+`/90-apply-retrospective` に振り返りファイルのパスを渡して実行する。
+**個別プロジェクトのセッションから本体リポジトリを直接編集しない。**</code></pre>
+<p class="note">回答時に自組織名と窓口（issue か振り返りファイルの受け渡しか）を補う。</p>
+</div>
+
+<!-- ---------- Q12 -->
+<div class="item" id="q12">
+<h3>Q12. 各フェーズの成果物（md）のうち人がどれをどう確認すべきか。/03 の出力が膨大で全部は読めない</h3>
+<p><span class="tag t-now">現状</span> フェーズごとの「人の関わり方」は定義済み（要件＝厚く回答し承認、設計＝質問回答と最終承認 1 回、実装〜テスト＝基本ノータッチ、リリース＝承認と人手必須作業）。しかし「各 md のどこを見るか」の人間向け観点は無く、観点が整っているのは AI レビュアー向けだけ。設計書は spec-critic が 9 観点で検査し、BLOCKER/MAJOR は人の確認なしに修正される。分量の上限も要点サマリの指示も無い。</p>
+<div class="src">.github/agents/design.agent.md 40-44・108-110</div>
+<pre><code>このフェーズの設計判断（アーキテクチャスタイル、コンポーネント分割、データモデル、API設計、詳細設計）は
+**あなたが決める**。ユーザーの役割は「質問に答えること」と「最終承認」だけであり...
+9. ... **最終確認として1回だけ**「この設計で実装フェーズに進んでよいですか？」と確認する。</code></pre>
+<p><span class="tag t-verify">実走</span> 7 人向けの小さなアプリでも architecture.md 308 行＋ADR 5 件（計 43KB）。/03 は承認を求めず、チャットには「決めたこと」6 行の表と残作業だけを出して /04 へ送った。人に聞いたのは技術選択 1 問（推奨つきトレードオフ表）だけで、「設計は AI が決める」思想は守られていた。</p>
+<div class="card">
+<h4>当面の回答: /03 の成果物で人が見る 4 点</h4>
+<ol>
+<li>技術スタックと ADR の「決定」「捨てた選択肢」（後戻りが困難な選択）</li>
+<li>システムコンテキスト図（外部システムとの境界）</li>
+<li>非機能要件の実現方法の表（NFR ごとに「どう実現しどう測るか」）</li>
+<li>要件対応表（自社の必須要件が載っているか）</li>
+</ol>
+<p>詳細設計・コンポーネント構成は spec-critic の検査を信頼し、人は spec-critic の指摘一覧と対応結果を読む。</p>
+</div>
+<div class="fix"><b>直す場所</b>
+<ul>
+<li>承認時の提示様式「レビューパック」を各フェーズに追加（§3 で HTML 版を提案）: 1 分サマリ／人の確認観点／spec-critic の指摘と対応／未決一覧／前回承認からの差分。</li>
+<li><code>design.agent.md</code> 手順 9 と <code>requirements.agent.md</code> 手順 7 に、レビューパックの提示を承認要求の前提として明記。</li>
+<li>spec-critic の設計向け 9 観点のうち人向けの 4 点を「人の確認観点」として USAGE.md に転記。</li>
+</ul></div>
+</div>
+
+<!-- ===================================================== 3 -->
+<h2 id="s3">3. HTML で人が確認する方法</h2>
+<p>「md をエディタで読んで承認する」運用は、開発者でない回答者・承認者には最初の壁になる。想定される質問は「確認は HTML でできないか」「質問票も HTML で答えられないか」の 2 つ。本ハーネスには既に HTML を使う箇所が 2 つあり、その延長で実現できる。</p>
+<div class="grid2">
+<div class="card"><h4>既にある HTML（1）画面モック</h4><p><code>ui-design-mockup</code> スキルは、CDN 無しの自己完結 HTML を 1 画面 1 ファイルで作り、人はブラウザで開いて確認、修正は「チャットで指示」か「HTML を直接編集して返す」の 2 経路。承認は設計ゲートの一部。閲覧にトークンは掛からない。</p></div>
+<div class="card"><h4>既にある HTML（2）説明ページの生成</h4><p><code>tools/gen-docs.py</code> が prompts/skills/agents の一次データから <code>.github/harness/*.html</code>（overview・agents・skills・commands・guardrails・internals）を生成している。「同じ事実を書いた複数の面」を手編集でなく生成で揃える原則（N 面鏡の生成物化）。</p></div>
+</div>
+
+<figure class="fig">
+<svg viewBox="0 0 980 230" role="img" aria-label="レビューパック HTML の生成と承認の流れ">
+  <defs><marker id="ar4" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/></marker></defs>
+  <g font-family="var(--body)" font-size="12" fill="var(--fg)">
+    <rect x="10" y="40" width="190" height="90" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="105" y="62" text-anchor="middle" font-weight="700">正: docs/*.md</text>
+    <text x="105" y="82" text-anchor="middle" fill="var(--muted)">requirements / architecture /</text>
+    <text x="105" y="98" text-anchor="middle" fill="var(--muted)">test-plan / 台帳 / 質問票</text>
+    <text x="105" y="116" text-anchor="middle" fill="var(--muted)">spec-critic の指摘と対応</text>
+    <rect x="240" y="40" width="190" height="90" rx="6" fill="var(--surface)" stroke="var(--line)"/>
+    <text x="335" y="62" text-anchor="middle" font-weight="700">tools/review-pack.py</text>
+    <text x="335" y="82" text-anchor="middle" fill="var(--muted)">gen-docs と同じ生成器方式</text>
+    <text x="335" y="98" text-anchor="middle" fill="var(--muted)">フェーズ別テンプレート</text>
+    <text x="335" y="116" text-anchor="middle" fill="var(--muted)">前回承認からの差分を付ける</text>
+    <rect x="470" y="40" width="210" height="90" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="575" y="62" text-anchor="middle" font-weight="700">review-pack.html（自己完結）</text>
+    <text x="575" y="82" text-anchor="middle" fill="var(--muted)">1 分サマリ・人の観点・未決一覧</text>
+    <text x="575" y="98" text-anchor="middle" fill="var(--muted)">指摘と対応・差分・承認／差し戻し</text>
+    <text x="575" y="116" text-anchor="middle" fill="var(--muted)">ボタンは承認文をコピーするだけ</text>
+    <rect x="720" y="40" width="120" height="90" rx="6" fill="var(--warn-soft)" stroke="var(--warn)" stroke-width="1.5"/>
+    <text x="780" y="78" text-anchor="middle" font-weight="700">人が読む</text>
+    <text x="780" y="98" text-anchor="middle" fill="var(--muted)">ブラウザ</text>
+    <rect x="860" y="40" width="110" height="90" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="915" y="70" text-anchor="middle" font-weight="700">チャットへ</text>
+    <text x="915" y="90" text-anchor="middle" fill="var(--muted)">「承認します」</text>
+    <text x="915" y="108" text-anchor="middle" fill="var(--muted)">→ GATE done</text>
+    <g stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar4)" fill="none">
+      <path d="M200,85 L238,85"/><path d="M430,85 L468,85"/><path d="M680,85 L718,85"/><path d="M840,85 L858,85"/>
+    </g>
+    <text x="490" y="170" text-anchor="middle" fill="var(--muted)">HTML は生成物で正ではない（md が正）。再生成で常に最新になり、手編集はしない</text>
+    <text x="490" y="195" text-anchor="middle" font-size="11" fill="var(--muted)">承認の記録は従来どおりチャットの明示発言と gate_status.py の証拠欄。HTML から直接ゲートを書き換えない（ガードの迂回になるため）</text>
+  </g>
+</svg>
+<figcaption>図 5. 承認用レビューパックの位置づけ。生成器方式にすると docs と HTML の食い違いが起きない。</figcaption>
+</figure>
+
+<h3>回答案</h3>
+<ul>
+<li><b>確認（承認）は HTML でできる。</b> 承認対象のフェーズごとに「レビューパック」を自己完結 HTML で生成する。中身は 1 分サマリ、人の確認観点（Q12 の 4 点など）、未決一覧、spec-critic の指摘と対応、前回承認からの差分。承認・差し戻しのボタンは「承認文をクリップボードにコピーする」だけにし、ゲートの書き換えは従来どおりチャットの明示発言で行う（承認バイパスを作らない）。</li>
+<li><b>質問票も HTML で答えられる。</b> <code>questionnaire.py</code> に <code>html</code> サブコマンドを足し、質問票 md から入力フォーム付き HTML を生成する。回答はフォームの「md を書き出す」ボタンで回答欄を埋めた md をダウンロードして上書きする（正は md のまま）。複数人の分担は §5 を参照。</li>
+<li><b>Claude Code 側の最新機能も使える。</b> Claude Code の Artifact 機能（デスクトップ／Web）は HTML ページを非公開リンクとして公開し、コメントを Claude に戻せる。社内で共有リンクを許容できる案件では、レビューパックを Artifact として公開し、承認者はブラウザでコメントする運用が可能（ハーネスは CDN 無しの自己完結 HTML を作るので、そのまま公開できる）。2026-10 の更新では routines（定期実行）の結果も Artifact として公開される。</li>
+<li><b>やらないこと。</b> HTML を正にしない（md と二重管理になる）。承認ボタンで GATE_STATUS を直接書かない。外部 CDN に依存しない（オフライン・社内 PC で開ける）。</li>
+</ul>
+<div class="src">修正案（review-pack の生成コマンド。gen-docs.py と同じ生成器の流儀）</div>
+<pre><code>python tools/review-pack.py requirements      # docs/00-overview/review/requirements-2026-10-15.html
+python tools/review-pack.py design --diff cb4fb00   # 前回承認コミットからの差分を付ける
+python tools/questionnaire.py html requirements/questionnaire.md   # 回答フォーム付き HTML</code></pre>
+
+<!-- ===================================================== 4 -->
+<h2 id="s4">4. 2026 年の設計潮流との対応（ハーネス／ループ／グラフ）</h2>
+<p>所感には直接含まれないが、「ループエンジニアリング」「グラフエンジニアリング」との関係を問われることが想定される。2026 年に広まった呼称と、本ハーネスが既に持っている要素・持っていない要素を対応づける。呼称の定義は記事ごとに揺れているため、出典（§9）の範囲で述べる。</p>
+
+<figure class="fig">
+<svg viewBox="0 0 980 300" role="img" aria-label="プロンプトからグラフまでの層と本ハーネスの対応">
+  <g font-family="var(--body)" font-size="12" fill="var(--fg)">
+    <g>
+      <rect x="20" y="230" width="300" height="46" rx="6" fill="var(--surface)" stroke="var(--line)"/><text x="170" y="250" text-anchor="middle" font-weight="700">プロンプト</text><text x="170" y="267" text-anchor="middle" fill="var(--muted)">1 回の応答を設計する</text>
+      <rect x="20" y="180" width="300" height="46" rx="6" fill="var(--surface)" stroke="var(--line)"/><text x="170" y="200" text-anchor="middle" font-weight="700">コンテキスト</text><text x="170" y="217" text-anchor="middle" fill="var(--muted)">モデルに渡す情報を設計する</text>
+      <rect x="20" y="130" width="300" height="46" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/><text x="170" y="150" text-anchor="middle" font-weight="700">ハーネス（2025〜）</text><text x="170" y="167" text-anchor="middle" fill="var(--muted)">制約・ツール・フック・検証・記憶の周辺系</text>
+      <rect x="20" y="80" width="300" height="46" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/><text x="170" y="100" text-anchor="middle" font-weight="700">ループ（2026 前半）</text><text x="170" y="117" text-anchor="middle" fill="var(--muted)">停止条件つきで自律的に回し続ける仕組み</text>
+      <rect x="20" y="30" width="300" height="46" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 3"/><text x="170" y="50" text-anchor="middle" font-weight="700">グラフ（2026 夏〜）</text><text x="170" y="67" text-anchor="middle" fill="var(--muted)">単一責務のノード・型付きエッジ・チェックポイント</text>
+    </g>
+    <g font-size="11.5">
+      <text x="350" y="252" font-weight="700">本ハーネス:</text><text x="430" y="252">prompts は「薄い起動指示」。振る舞いは agent/skill に置く（D048）</text>
+      <text x="350" y="202" font-weight="700">本ハーネス:</text><text x="430" y="202">docs/ が記憶（会話は記憶でない）。SessionStart で GATE と教訓を注入。notepad.md</text>
+      <text x="350" y="152" font-weight="700">本ハーネス:</text><text x="430" y="152">deny+フックの二重ガード、done 契約と証拠、spec-critic/reviewer の独立レビュー、受領書</text>
+      <text x="350" y="102" font-weight="700">本ハーネス:</text><text x="430" y="102">実装ループ（task-worker 1 タスク 1 呼び出し、retry→replan→escalate、3 回失敗で停止）</text>
+      <text x="430" y="118" fill="var(--bad)">未: /goal 相当の「検証可能な停止条件を別モデルが判定」。watchdog は上限 3 回</text>
+      <text x="350" y="52" font-weight="700">本ハーネス:</text><text x="430" y="52">フェーズ状態機械（STATE-MACHINE.md、GATE_STATUS、往復カウンタ）とハンドオフ＝暗黙のグラフ</text>
+      <text x="430" y="68" fill="var(--bad)">未: ノード/エッジの型とチェックポイントの明示。大規模分割（ICD）が最も近い</text>
+    </g>
+  </g>
+</svg>
+<figcaption>図 6. 層の積み上げ（各解説記事の整理に基づく）と、本ハーネスの該当要素。</figcaption>
+</figure>
+
+<div class="tbl"><table>
+<tr><th>潮流</th><th>要点（出典の範囲）</th><th>本ハーネスに既にあるもの</th><th>取り込む価値があるもの</th></tr>
+<tr><td>ハーネスエンジニアリング</td><td>Agent = Model + Harness。制約・ツール・フィードバックループ・文書・検証を周辺に置く。モデル更新で自動に良くならない</td><td>AGENTS.md の憲法、deny＋フック、done 契約と証拠、独立レビュー、受領書による計測、成長ループ（/10 → /90）</td><td>フックの <code>onFailure: "block"</code>（2.1.295）で「フックが起動できない＝素通り」をやめる（現状は fail-open 設計）</td></tr>
+<tr><td>ループエンジニアリング（Osmani 2026-06）</td><td>自分で指示する代わりに「エージェントに指示し続ける仕組み」を設計する。5 要素: 自動化・worktree・スキル・プラグイン/コネクタ・サブエージェント＋状態。作る側と検証側を分ける。「done は主張であって証明ではない」。理解負債・意図負債・調整税に注意</td><td>スキル（SKILL.md）、サブエージェント（task-worker 作成／reviewer 検証）、状態は docs/ と GATE_STATUS、3 回失敗で人へ、Stop フックの watchdog</td><td>Claude Code の <code>/goal</code>（2.1.139〜。停止条件を別の小さなモデルが判定）を done 契約から生成して /06〜/08 の全自動区間に使う。routines（定期実行）で /13-converge を夜間に回す</td></tr>
+<tr><td>グラフエンジニアリング（2026-07〜）</td><td>暗黙のループを明示的なグラフに。単一責務ノード・型付きエッジ・スキーマ付きチェックポイント。ループはノード内部へ。判断だけモデル、取得や分岐は決定的コード</td><td>フェーズ状態機械と往復カウンタ、<code>gate_status.py</code> の原子的書換、ハンドオフ、決定論ツール群（questionnaire/trace-check/gate_status）</td><td>フェーズ内のステップ（check → 矛盾確認 → 文書 → レビュー → 派生質問）を明示的なノードとして定義し、各ノードの入出力スキーマと再開点を <code>progress.md</code> に持たせる。Workflow（複数エージェントの決定的オーケストレーション）での並列化</td></tr>
+<tr><td>Spec Kit（GitHub）</td><td>constitution → specify → clarify（5 問・選択式・推奨）→ plan → checklist（要件の単体テスト）→ tasks → analyze（spec/plan/tasks の整合）</td><td>spec-critic ≒ checklist、trace-check ≒ analyze の ID 整合部分、質問票 ≒ clarify（ただし厚い）</td><td>clarify の「上位 5 問・推奨既定」を「標準プロファイル」として取り込む（§7）。analyze の意味的整合は spec-critic に観点として追加</td></tr>
+<tr><td>Kiro（AWS）</td><td>requirements.md（EARS）→ design.md → tasks.md の 3 ファイル。Requirements-First と Design-First の 2 経路</td><td>EARS と Given/When/Then は採用済み。同じ 3 層構造</td><td>Design-First 経路（既存設計から要件を導く）はリプレース入口（Q10）の参考になる</td></tr>
+</table></div>
+<p class="note">Claude Code の機能名・版は公式 changelog（2.1.292〜2.1.300、2026-10-06〜14）と 2026 年の解説記事に基づく。/goal の「別の小さなモデルが判定する」は複数の解説記事の記述で、公式ページでの確認は未了。</p>
+
+<!-- ===================================================== 5 -->
+<h2 id="s5">5. 複数人で並行して行う方法</h2>
+<p>所感の背景（複数人の回答者、工程ごとの検収）から、「複数人で同時に進められるか」が問われる。本ハーネスは単一セッション・単一承認者を前提に作られているが、並行の単位ごとに既存の仕組みがある。</p>
+<figure class="fig">
+<svg viewBox="0 0 980 260" role="img" aria-label="並行の 3 つの単位">
+  <g font-family="var(--body)" font-size="12" fill="var(--fg)">
+    <rect x="10" y="20" width="300" height="220" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="160" y="45" text-anchor="middle" font-weight="700">A. 回答の分担（要件定義）</text>
+    <text x="24" y="72">質問票は分類別の見出し → 分類ごとに担当</text>
+    <text x="24" y="92">機能別分類（Q4）なら機能ごとに担当</text>
+    <text x="24" y="112">Excel 書き出し（担当列・状態列）で分担管理</text>
+    <text x="24" y="132">回答は 1 つの md に戻す（git で合流）</text>
+    <text x="24" y="162" fill="var(--muted)">既存: 分類見出し・Q-ID・チャット転記</text>
+    <text x="24" y="182" fill="var(--bad)">未: 担当列・Excel 往復</text>
+    <text x="24" y="210" fill="var(--muted)">承認者は 1 人に固定（ゲートの明示承認）</text>
+    <rect x="340" y="20" width="300" height="220" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="490" y="45" text-anchor="middle" font-weight="700">B. サブシステムの分割（設計〜実装）</text>
+    <text x="354" y="72">US 30 超・複数チームは large-scale-development</text>
+    <text x="354" y="92">システム層: 分割と ICD（境界）を人が承認</text>
+    <text x="354" y="112">サブシステム層: 内側は AI に任せる</text>
+    <text x="354" y="132">ICD 変更は差分駆動の分類 2（再ゲート）</text>
+    <text x="354" y="162" fill="var(--muted)">既存: スキル・ICD テンプレート・spec-critic 観点 7</text>
+    <text x="354" y="182" fill="var(--muted)">サブシステムごとに docs を分割し別セッション</text>
+    <rect x="670" y="20" width="300" height="220" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="820" y="45" text-anchor="middle" font-weight="700">C. エージェントの並列（実装・レビュー）</text>
+    <text x="684" y="72">git worktree で 1 サブシステム 1 作業木</text>
+    <text x="684" y="92">Claude Code の agent teams（2026-02、既定オフ）</text>
+    <text x="684" y="112">または Workflow で task-worker を並列起動</text>
+    <text x="684" y="132">reviewer は別コンテキストで独立（既存）</text>
+    <text x="684" y="162" fill="var(--muted)">既存: dynamic workflows はコスト理由つきで提案</text>
+    <text x="684" y="182" fill="var(--bad)">未: worktree 運用・teams の手順と deny の整合</text>
+    <text x="684" y="210" fill="var(--muted)">合流はタスク単位コミット（D049）で</text>
+  </g>
+</svg>
+<figcaption>図 7. 並行の単位と、既存の仕組み・未整備の部分。</figcaption>
+</figure>
+<ul>
+<li><b>A（人の並行）</b>: 質問票の分類（または Q4 の機能キー）ごとに担当を割り当てる。担当列と状態列を <code>questionnaire.py</code> の Excel 書き出し／取り込み（§3）で持つ。回答は 1 つの md に戻し、承認者は 1 人に固定する（ゲートの明示承認はユーザーの発言で記録される設計）。</li>
+<li><b>B（成果物の並行）</b>: <code>large-scale-development</code> スキルがシステム層／サブシステム層の 2 層に分け、分割と ICD は人が承認、内側は AI。サブシステムごとに docs とセッションを分ける。</li>
+<li><b>C（エージェントの並行）</b>: worktree 単位で task-worker を並列に走らせる。Claude Code の agent teams は 2026-02 に実験機能として追加（既定オフ、セッション再開不可などの制約）。本ハーネスの deny／フックは cwd 単位で効くため、worktree ごとに同じ設定が読まれることを <code>doctor.py</code> で確認する手順を足す。</li>
+</ul>
+
+<!-- ===================================================== 6 -->
+<h2 id="s6">6. 画面設計で Figma と連携する方法</h2>
+<p>現状のハーネスは自己完結 HTML のモックだけで、Figma との連携は無い（指示層に figma の語は無い）。Figma 公式の MCP サーバー（<code>https://mcp.figma.com/mcp</code>。リモート版は全プランで利用可）を使うと、次の 2 方向が可能になる。</p>
+<figure class="fig">
+<svg viewBox="0 0 980 230" role="img" aria-label="Figma 連携の 2 方向">
+  <defs><marker id="ar5" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/></marker></defs>
+  <g font-family="var(--body)" font-size="12" fill="var(--fg)">
+    <rect x="10" y="60" width="220" height="110" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="120" y="85" text-anchor="middle" font-weight="700">Figma（デザイナー）</text>
+    <text x="120" y="108" text-anchor="middle" fill="var(--muted)">フレーム・コンポーネント</text>
+    <text x="120" y="126" text-anchor="middle" fill="var(--muted)">デザイントークン（変数）</text>
+    <text x="120" y="144" text-anchor="middle" fill="var(--muted)">Code Connect の対応表</text>
+    <rect x="380" y="20" width="220" height="80" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="490" y="45" text-anchor="middle" font-weight="700">経路 1: design → docs</text>
+    <text x="490" y="65" text-anchor="middle" fill="var(--muted)">get_design_context / get_screenshot</text>
+    <text x="490" y="83" text-anchor="middle" fill="var(--muted)">/02 画面横断仕様・/04 詳細設計の入力に</text>
+    <rect x="380" y="130" width="220" height="80" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="490" y="155" text-anchor="middle" font-weight="700">経路 2: HTML モック → Figma</text>
+    <text x="490" y="175" text-anchor="middle" fill="var(--muted)">use_figma / generate design（code-to-canvas）</text>
+    <text x="490" y="193" text-anchor="middle" fill="var(--muted)">デザイナーが Figma 上で手直し → 経路 1 で戻す</text>
+    <rect x="750" y="60" width="220" height="110" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="860" y="85" text-anchor="middle" font-weight="700">ハーネス（docs/02-design/ui）</text>
+    <text x="860" y="108" text-anchor="middle" fill="var(--muted)">design-tokens.md</text>
+    <text x="860" y="126" text-anchor="middle" fill="var(--muted)">screen-NN-*.html（自己完結）</text>
+    <text x="860" y="144" text-anchor="middle" fill="var(--muted)">状態リファレンス 1 枚</text>
+    <g stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar5)" fill="none">
+      <path d="M230,100 C 300,100 320,60 378,60"/><path d="M600,60 C 660,60 690,100 748,100"/>
+      <path d="M750,140 C 690,140 660,170 602,170"/><path d="M378,170 C 320,170 300,140 232,140"/>
+    </g>
+  </g>
+</svg>
+<figcaption>図 8. Figma 連携の 2 方向。正はどちらか一方に決める（デザイナー主導なら Figma、AI 主導なら HTML）。</figcaption>
+</figure>
+<ul>
+<li><b>経路 1（デザイナーの Figma を正にする）</b>: 要件定義の「画面横断の仕様」と /04 の詳細設計で、Figma のフレーム URL を memo／docs に書く。design エージェントは MCP でレイアウト・トークン・コンポーネントを読み、HTML モックの代わりに Figma を参照して <code>design-tokens.md</code> を生成する。Code Connect の対応表があれば実装は既存コンポーネントを使う。</li>
+<li><b>経路 2（AI の HTML モックを Figma に送る）</b>: <code>ui-design-mockup</code> が作った HTML を code-to-canvas で Figma に送り、デザイナーが Figma で手直しし、経路 1 で戻す。HTML と Figma の二重管理を避けるため、合意後は一方を正にする。</li>
+<li><b>導入手順（ハーネスの規律）</b>: MCP の追加は AGENTS.md の Lethal Trifecta 判定（信頼できない入力・機密データ・外部送信の 3 つを同時に持たない）と、<code>external-lock.json</code> への出所・版の登録が必要（未登録は validate が ERROR）。Figma MCP は書込（canvas への生成）を持つため、設計フェーズのセッションだけに接続し、実装・リリースのセッションでは外す。接続例: <code>claude mcp add --transport http figma https://mcp.figma.com/mcp</code>（公式ドキュメントで最新の手順を確認する）。</li>
+<li><b>直す場所</b>: <code>ui-design-mockup/SKILL.md</code> に「Figma を正にする場合」の節、<code>design.agent.md</code> 手順 5.5 に経路の選択、<code>skill-authoring</code> の外部 MCP 登録手順に Figma の例を追加。</li>
+</ul>
+
+<!-- ===================================================== 7 -->
+<h2 id="s7">7. 対策の全体像（全体展開を見据えて）</h2>
+<p>所感が示すのは 2 点。最新版でも「要件定義の負荷が高い」こと、そして利用側の文脈（リプレース、Excel で回る業務、複数人の回答者、検収文化）はハーネスの目的である「継続的に保守するシステム」の範囲内なのに、出発点が 1 人の新規開発だったために必要な部品がまだ無いこと。今回のギャップは対象外の使われ方ではなく、埋めるべき対象。個別の手直しに加えて、入口を案件種別で選べる構成にする。</p>
+<figure class="fig">
+<svg viewBox="0 0 980 260" role="img" aria-label="コアとプロファイルの構成">
+  <g font-family="var(--body)" font-size="12" fill="var(--fg)">
+    <rect x="20" y="170" width="940" height="70" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="490" y="196" text-anchor="middle" font-weight="700">コア（1 本で保守）</text>
+    <text x="490" y="218" text-anchor="middle" fill="var(--muted)">ゲート状態機械・フック＋deny・docs 規約とテンプレート・done 契約と証拠・独立レビュー・受領書・検証スイート・成長ループ（/10 → /90 → /91）</text>
+    <g>
+      <rect x="20" y="40" width="215" height="110" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+      <text x="127" y="65" text-anchor="middle" font-weight="700">新規・厚い（現行）</text>
+      <text x="127" y="88" text-anchor="middle" fill="var(--muted)">全分類を聞く・4 回まで</text>
+      <text x="127" y="106" text-anchor="middle" fill="var(--muted)">仕様が曖昧・高影響が多い案件</text>
+      <text x="127" y="124" text-anchor="middle" fill="var(--muted)">終了見通し・機能別分類を追加</text>
+      <rect x="262" y="40" width="215" height="110" rx="8" fill="var(--surface)" stroke="var(--good)" stroke-width="1.5"/>
+      <text x="369" y="65" text-anchor="middle" font-weight="700">新規・標準（新設）</text>
+      <text x="369" y="88" text-anchor="middle" fill="var(--muted)">影響×不確実性で上位 N 問</text>
+      <text x="369" y="106" text-anchor="middle" fill="var(--muted)">残りは推奨採用＋台帳（Spec Kit clarify 相当）</text>
+      <text x="369" y="124" text-anchor="middle" fill="var(--muted)">拾い漏れは設計差し戻しで回収。計測して閾値を決める</text>
+      <rect x="504" y="40" width="215" height="110" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+      <text x="611" y="65" text-anchor="middle" font-weight="700">新規・軽量（既存 fast-track）</text>
+      <text x="611" y="88" text-anchor="middle" fill="var(--muted)">1 往復＋承認 2 回</text>
+      <text x="611" y="106" text-anchor="middle" fill="var(--muted)">単一機能・10 ファイル以下</text>
+      <rect x="746" y="40" width="215" height="110" rx="8" fill="var(--surface)" stroke="var(--good)" stroke-width="1.5"/>
+      <text x="853" y="65" text-anchor="middle" font-weight="700">既存保守 / リプレース（新設）</text>
+      <text x="853" y="88" text-anchor="middle" fill="var(--muted)">/11 の逆起こし＋既存設計書の取り込み</text>
+      <text x="853" y="106" text-anchor="middle" fill="var(--muted)">現行ソース差異・新旧テスト比較</text>
+      <text x="853" y="124" text-anchor="middle" fill="var(--muted)">Kiro の Design-First が参考</text>
+    </g>
+    <text x="490" y="22" text-anchor="middle" fill="var(--muted)">/00 の入口判定でプロファイルを選び、progress.md に固定して記録する</text>
+  </g>
+</svg>
+<figcaption>図 9. 「必ずしも 1 つのハーネスでなくてよい」を、保守線を増やさずに実現する構成。</figcaption>
+</figure>
+<div class="tbl"><table>
+<tr><th>時期</th><th>内容</th><th>所感との対応</th></tr>
+<tr><td>短期（数週間）</td><td>テンプレート冒頭文／推奨の明示／高影響への候補／回答者向け行と AI 向け行の分離／終了見通し／機能別分類／台帳の状態列と未決表示／レビューパック（md 版）</td><td>Q1〜Q7、Q12</td></tr>
+<tr><td>中期（1〜2 か月）</td><td>標準プロファイル（上位 N 問＋推奨採用）／ラフモック前倒し／決定表・状態遷移表・テスト草案の前倒し・未カバー検査／レビューパック HTML・質問票 HTML・Excel 往復／フックの <code>onFailure: block</code> 採用の検討</td><td>Q1、Q8、Q9、§3、§5</td></tr>
+<tr><td>長期（四半期）</td><td>コア＋プロファイル再編／リプレース入口／Figma 経路／<code>/goal</code> を done 契約から生成して全自動区間に適用／Workflow による並列化／プロファイル別の計測（要件工数・設計差し戻し率・要件起因の手戻り）</td><td>Q10、§4、§6</td></tr>
+</table></div>
+<p>採らない案: リプレース専用ハーネスを別リポジトリで作ること。保守線が 2 本になり、ガード・検証・成長ループを二重に持つ。全体展開で効くのは「入口の選択肢」であって「ハーネスの本数」ではない。Spec Kit 等の他ハーネスは「置換」ではなく「参照」として使い、同一課題での比較（本体の評価装置に Spec Kit アームの下書きあり）で判断する。</p>
+
+<!-- ===================================================== 8 -->
+<h2 id="s8">8. 想定 Q&amp;A</h2>
+<p class="note">所感から読み取れる背景（リプレース案件、Excel で回る業務、複数人の回答者、md 成果物を工程ごとに検収する文化、既存設計書の差分比較に Claude を活用）に基づく。</p>
+<h3>進め方・要件定義</h3>
+<details><summary>Q. 質問票を複数人で分担して回答できるか</summary><p>できる。分類ごとの見出しで担当を割り当てる。担当列・状態列は無いので、冒頭に担当表を書くか Excel 書き出し（§3・§5）を待つ。回答は必ず同じ md に戻す。チャットで答えた分も転記される。</p></details>
+<details><summary>Q. 回答を数週間止めても大丈夫か</summary><p>大丈夫。/02 は会話履歴でなく質問票ファイルだけを読む設計で、別の日・別のチャットで再開できる。再開は新しいチャットで <code>/02-requirements-deepdive</code>。</p></details>
+<details><summary>Q. memo にはどこまで書けばよいか</summary><p>書くほど質問が減る。「memo と探索で分かることは質問しない」規律なので、既存資料・業務フロー・画面一覧・制約（環境・権限・締め処理）を貼るか参照パスを書く。被覆表で Clear の分類は質問されない。実走では memo 18 行から 85 問が出た。</p></details>
+<details><summary>Q. 要件定義にどれだけ時間と費用がかかるか</summary><p>実走（7 人向け小規模アプリ）で /00〜/02 承認まで AI 側 38 分・$10.1、人は 85 問＋チャット 12 問。業務システムではこの数倍。費用は会話ごとの受領書（<code>/99-status</code>）で見られる。</p></details>
+<details><summary>Q. 要件の「承認」は何を見て行うか</summary><p>requirements.md（ユーザーストーリーと受け入れ条件）・nfr.md・environment.md・未確定事項台帳。見るべきは「スコープ外が書かれているか」「高影響を自分で決めたか」「未決が設計を左右しないか」。文言の検証は spec-critic が済ませている。</p></details>
+<details><summary>Q. 承認後に要件を変えたくなったら</summary><p>構築中なら該当フェーズへ差し戻し（要件なら /02）。運用中なら <code>/12-change-request</code>。どちらも影響範囲をトレーサビリティ表から辿って該当部分だけ再ゲートする。</p></details>
+<h3>設計・画面</h3>
+<details><summary>Q. 画面デザインは誰が決めるか。デザイナーの成果物を使えるか</summary><p>設計フェーズで AI が HTML モックを作り、人が目視で直す。Figma を正にする場合は §6 の経路 1。既存のデザインがあれば memo か docs に置けば参照される。</p></details>
+<details><summary>Q. 設計書が膨大で読めない</summary><p>Q12 の 4 点（技術スタックと ADR・コンテキスト図・NFR 実現方法・要件対応表）だけ見る。残りは spec-critic の指摘と対応結果を読む。承認時のレビューパック（§3）で 1 画面に要約する。</p></details>
+<details><summary>Q. 技術スタックは指定できるか。社内標準に縛れるか</summary><p>できる。memo か environment.md に必須技術・禁止技術を書けば制約として扱われる。設計で候補提示があるときに選ぶ。社内規約は <code>stack-conventions</code> スキルとして案件側で作り再利用する（同期で上書きされない）。</p></details>
+<h3>実装・テスト</h3>
+<details><summary>Q. 実装中は本当に何も見なくてよいのか</summary><p>設計承認後からテスト完了までは全自動区間。止まるのは、要件・設計から判断できない事実が要るとき、同一タスク 3 回失敗、push・デプロイ等の外部反映、environment.md で「人手」に分類した作業。完了は証拠で判定し、10 タスクごとに独立レビューが入る。</p></details>
+<details><summary>Q. 既存のテスト仕様書の形式（Excel）で出せるか</summary><p>正は docs/04-test/test-plan.md（Markdown 表）。Excel への変換は案件側のスクリプトで可能だが正は md のまま。要件×ケースのマトリクス（Q9）を追加予定。</p></details>
+<details><summary>Q. テストの網羅性は誰が保証するか</summary><p>現状は AI（要件 ID 紐づけ＋観点チェックリスト）と reviewer。人の承認工程は無い。Q9 の対策で「テスト設計の承認」を 1 回入れる。</p></details>
+<h3>既存システム・リプレース</h3>
+<details><summary>Q. 既存の設計書（Word/Excel）を読ませられるか</summary><p>手順としては無い。memo から参照すれば AI は読めるが、現行ソースとの突き合わせや新旧比較は未整備（Q10）。貴社の実践を取り込みたい。</p></details>
+<details><summary>Q. 既存コードがある案件で /00 を実行したら</summary><p>既存コード（app/ や intake-report.md）を検知して progress.md を作らず <code>/11-brownfield-intake</code> へ誘導する。/11 は as-is の逆起こしを行い、以後は /12 で差分駆動。</p></details>
+<details><summary>Q. リプレース後の新システムは別リポジトリにしたい</summary><p>現状の /11 は同一リポジトリで既存コードを引き継ぐ前提。別リポジトリなら新規側はグリーンフィールド（/00〜）で進め、既存側の仕様は memo と docs への参照で渡す。リプレースプロファイル（§7）で正式化する。</p></details>
+<h3>運用・ガバナンス・コスト・セキュリティ</h3>
+<details><summary>Q. ハーネスの更新はどう受け取るか。案件ごとの改変は消えるか</summary><p><code>/91-sync-from-harness</code>（人が <code>--apply</code>）。本体所有ファイルは上書き、案件固有物（docs 実体・独自スキル・learnings）は触らない。本体所有ファイルを案件側で直接書き換えると次の同期で消えるので、変更は本体へ提案する。</p></details>
+<details><summary>Q. ソースや設計書が外部に送られることへの統制は</summary><p>Claude Code の利用自体は案件側の契約・設定に従う。ハーネス側は、外部反映（push・デプロイ・外部 API 書込）を ask/deny、秘密情報の書込を deny、MCP 等の接続追加を Lethal Trifecta の規律で制限する。外部スキル・MCP は版固定とロック登録が必要。</p></details>
+<details><summary>Q. 費用の見通しと上限は</summary><p>会話ごとの受領書で費用・ターン・コンテキスト使用率が残る（定価換算）。ヘッドレス実行は <code>--max-turns</code> と <code>--max-budget-usd</code> の併用が規律。モデルと effort は役割別方針で固定する。</p></details>
+<details><summary>Q. Copilot でも使えるか</summary><p>両対応（正は <code>.github/</code> 配下、Claude Code は生成アダプタ）。機械ガードの強さは環境で差がある。Windows では Git Bash が必要。</p></details>
+<details><summary>Q. ループエンジニアリング／グラフエンジニアリングに対応しているか</summary><p>§4 のとおり。ループの要素（スキル・サブエージェント・状態・停止条件・独立検証）は実装済みで、/goal 相当の「検証可能な停止条件を別モデルが判定する」仕組みは未導入。グラフは状態機械とハンドオフが暗黙のグラフで、ノード／エッジの型とチェックポイントの明示は未。</p></details>
+<details><summary>Q. 導入の最初に何をすればよいか</summary><p>(1) ハーネスを取得（テンプレート／ZIP／同期／取り込み）、(2) <code>python tools/doctor.py</code> で配線確認、(3) memo を書く、(4) <code>/00-start-project</code>（既存コードがあれば /11 へ誘導）。最初の 1 枚として「フェーズごとに人の関わり方が違う」を共有する。</p></details>
+
+<!-- ===================================================== 9 -->
+<h2 id="s9">9. 出典</h2>
+<h4>本体（一次資料。パスは D:\vscode-worspace\CreateAppl 基準）</h4>
+<ul class="sources">
+<li>AGENTS.md（フェーズとゲート・自律性・差分駆動・成長ループ）</li>
+<li>.github/skills/requirements-elicitation/SKILL.md、.github/agents/requirements.agent.md、spec-critic.agent.md、design.agent.md、test.agent.md、orchestrator.agent.md</li>
+<li>.github/prompts/00〜04・07.prompt.md、.github/skills/ui-design-mockup、fast-track、brownfield-intake、change-request、converge、harness-retrospective、harness-apply-retrospective、large-scale-development</li>
+<li>tools/questionnaire.py、trace-check.py、gen-docs.py、sync-harness.py、intake-app.py、harness-maintenance.py</li>
+<li>DECISIONS.md D098・D099、audits/elicitation-ux-survey-2026-09-21.md、evaluation/results/elicitation/todo-app-01-20260923.json、evaluation/tasks/expense-webapp/task.md</li>
+<li>実走の成果物とログ: D:\projects\sdlc-harness-dev\sandbox\expense-run、sandbox\logs（git 管理外）</li>
+</ul>
+<h4>外部（2026 年の公開情報）</h4>
+<ul class="sources">
+<li><a href="https://addyosmani.com/blog/loop-engineering/">Addy Osmani, Loop Engineering（2026-06）</a>／<a href="https://atmarkit.itmedia.co.jp/ait/articles/2606/23/news017.html">＠IT Deep Insider Brief: ループエンジニアリングとは</a>／<a href="https://www.ibm.com/think/topics/loop-engineering">IBM Think: ループ・エンジニアリングとは</a></li>
+<li><a href="https://blog.serverworks.co.jp/what-is-graph-engineering">サーバーワークス: 「グラフエンジニアリング」とは何か</a>／<a href="https://zenn.dev/suwash/articles/graph-engineering_20260727">Zenn: Graph Engineering 入門</a>／<a href="https://www.ai-souken.com/article/what-is-graph-engineering">AI 総研: グラフエンジニアリングとは</a></li>
+<li><a href="https://code.claude.com/docs/en/changelog">Claude Code changelog（2.1.292〜2.1.300、2026-10）</a>／<a href="https://code.claude.com/docs/en/permissions">Claude Code permissions（追加ディレクトリと設定の扱い）</a>／<a href="https://blog.dailydoseofds.com/p/claude-codes-goal-command">Claude Code の /goal（解説）</a>／<a href="https://dev.classmethod.jp/en/articles/reona-claude-code-goal-stop-condition/">Classmethod: /goal の停止条件</a></li>
+<li><a href="https://www.morphllm.com/claude-code-agent-teams">Claude Code Agent Teams（解説、2026）</a>／<a href="https://medium.com/@koriigami/running-parallel-claude-code-agents-on-a-single-codebase-927d70e7349d">Running Parallel Claude Code Agents on a Single Codebase</a></li>
+<li><a href="https://zenn.dev/engine0606/articles/62473a9c18d648">GitHub Spec Kit（clarify / analyze / checklist の解説）</a>／<a href="https://www.verdent.ai/ja/guides/agents/kiro-spec-driven-development">Kiro spec-driven development（2026-08 時点の解説）</a></li>
+<li><a href="https://www.builder.io/blog/figma-mcp-server">Figma MCP server（Builder.io）</a>／<a href="https://www.fast.io/resources/mcp-server-for-figma/">MCP Server for Figma design-to-code</a>／<a href="https://www.superdesign.dev/blog/figma-to-claude-code">Figma to Claude Code</a></li>
+<li><a href="https://dev.to/aniruddhaadak/harness-engineering-what-every-ai-engineer-needs-to-know-in-2026-3m87">Harness Engineering: What Every AI Engineer Needs to Know in 2026</a>／<a href="https://concepts.dsebastien.net/concept/harness-engineering/">Harness Engineering（概念整理）</a></li>
+</ul>
+<p class="note">外部の解説記事は二次情報を含む。機能の有無・版・コマンド名は、導入時に各公式ドキュメントで確認する。</p>
+
+</main>
+</div>
+</body>
+</html>
